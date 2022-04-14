@@ -446,3 +446,10 @@ FodyWeavers.xsd
 lib/build/
 *.class
 
+# Swift
+Pods/*
+
+# Typescript
+types/*
+typings/*
+
