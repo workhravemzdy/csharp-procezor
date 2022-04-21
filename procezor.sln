@@ -7,6 +7,12 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Procezor", "procezor\Procez
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ProcezorTests", "procezorTest\ProcezorTests.csproj", "{10AC232C-912D-449B-ACB4-82EF57A9AC04}"
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{A0FF50FC-1CC1-4197-BF7F-FF8D7F4204A9}"
+	ProjectSection(SolutionItems) = preProject
+		git_add_commit.sh = git_add_commit.sh
+		git_tag_push.sh = git_tag_push.sh
+	EndProjectSection
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU

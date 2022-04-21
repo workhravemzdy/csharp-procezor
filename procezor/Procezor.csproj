@@ -14,9 +14,10 @@
     <RepositoryType>github</RepositoryType>
     <PackageTags>payroll, legal, wages, social, health, tax, income, insurance</PackageTags>
     <SignAssembly>true</SignAssembly>
-    <AssemblyOriginatorKeyFile>hravemzdy__org_publish_key.pfx</AssemblyOriginatorKeyFile>
+    <AssemblyOriginatorKeyFile>hravemzdy__org_publish_key.snk</AssemblyOriginatorKeyFile>
   </PropertyGroup>
 
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' " />
   <ItemGroup>
     <PackageReference Include="HraveMzdy.Legalios" Version="0.22.4" />
     <PackageReference Include="ResultMonad" Version="1.0.1" />
