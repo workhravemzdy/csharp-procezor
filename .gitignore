@@ -452,4 +452,4 @@ Pods/*
 # Typescript
 types/*
 typings/*
-
+dist/*
