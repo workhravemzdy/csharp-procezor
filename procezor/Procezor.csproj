@@ -4,7 +4,7 @@
     <TargetFramework>net5.0</TargetFramework>
     <AssemblyName>HraveMzdy.Procezor</AssemblyName>
     <RootNamespace>HraveMzdy.Procezor</RootNamespace>
-    <Version>0.22.13</Version>
+    <Version>0.22.17</Version>
     <Authors>Ladislav Lisy</Authors>
     <Description>General payroll procesor</Description>
     <Copyright>Copyright 2022</Copyright>
@@ -15,7 +15,7 @@
     <PackageTags>payroll, legal, wages, social, health, tax, income, insurance</PackageTags>
     <SignAssembly>true</SignAssembly>
     <AssemblyOriginatorKeyFile>hravemzdy__org_publish_key.snk</AssemblyOriginatorKeyFile>
-    <ReleaseVersion>0.22.13</ReleaseVersion>
+    <ReleaseVersion>0.22.17</ReleaseVersion>
     <SynchReleaseVersion>false</SynchReleaseVersion>
   </PropertyGroup>
 
