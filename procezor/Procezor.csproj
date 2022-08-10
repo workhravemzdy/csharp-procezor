@@ -35,7 +35,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="HraveMzdy.Legalios" Version="0.22.20" />
+    <PackageReference Include="HraveMzdy.Legalios" Version="0.22.21" />
   </ItemGroup>
 
 </Project>
