@@ -4,7 +4,7 @@ using HraveMzdy.Legalios.Service.Interfaces;
 using HraveMzdy.Procezor.Service.Errors;
 using HraveMzdy.Procezor.Service.Interfaces;
 using HraveMzdy.Procezor.Service.Types;
-using ResultMonad;
+using LanguageExt;
 
 namespace HraveMzdy.Procezor.Service
 {
@@ -17,7 +17,7 @@ namespace HraveMzdy.Procezor.Service
 
         IEnumerable<IContractTerm> GetContractTerms(IPeriod period, IEnumerable<ITermTarget> targets);
         IEnumerable<IPositionTerm> GetPositionTerms(IPeriod period, IEnumerable<IContractTerm> contracts, IEnumerable<ITermTarget> targets);
-        IEnumerable<Result<ITermResult, ITermResultError>> GetResults(IPeriod period, IBundleProps ruleset, IEnumerable<ITermTarget> targets);
+        IEnumerable<Either<ITermResultError, ITermResult>> GetResults(IPeriod period, IBundleProps ruleset, IEnumerable<ITermTarget> targets);
         bool BuildFactories();
         bool InitWithPeriod(IPeriod period);
         IArticleSpec GetArticleSpec(ArticleCode code, IPeriod period, VersionCode version);

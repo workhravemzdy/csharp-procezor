@@ -1,7 +1,8 @@
 ﻿using System;
 using HraveMzdy.Legalios.Service.Interfaces;
 using HraveMzdy.Procezor.Service.Interfaces;
-using ResultMonad;
+using LanguageExt;
+using static LanguageExt.Prelude;
 
 namespace HraveMzdy.Procezor.Service.Errors
 {
@@ -11,9 +12,9 @@ namespace HraveMzdy.Procezor.Service.Errors
         {
             return new NoImplementationError(period, target, impDescr);
         }
-        public static Result<ITermResult, ITermResultError> CreateResultError(IPeriod period, ITermTarget target, string impDescr)
+        public static Either<ITermResultError, ITermResult> CreateResultError(IPeriod period, ITermTarget target, string impDescr)
         {
-            return Result.Fail<ITermResult, ITermResultError>(NoImplementationError.CreateError(period, target, impDescr));
+            return Left(NoImplementationError.CreateError(period, target, impDescr));
         }
         NoImplementationError(IPeriod period, ITermTarget target, string impDescr) : base(period, target, null, $"No implementation for {impDescr}!")
         {

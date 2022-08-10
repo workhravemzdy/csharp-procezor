@@ -6,8 +6,9 @@ using HraveMzdy.Procezor.Service.Interfaces;
 using HraveMzdy.Procezor.Service.Types;
 using HraveMzdy.Procezor.Registry;
 using HraveMzdy.Procezor.Registry.Factories;
-using ResultMonad;
 using System.Linq;
+using LanguageExt;
+using static LanguageExt.Prelude;
 
 namespace HraveMzdy.Procezor.Service
 {
@@ -31,9 +32,9 @@ namespace HraveMzdy.Procezor.Service
         }
         public abstract IEnumerable<IContractTerm> GetContractTerms(IPeriod period, IEnumerable<ITermTarget> targets);
         public abstract IEnumerable<IPositionTerm> GetPositionTerms(IPeriod period, IEnumerable<IContractTerm> contracts, IEnumerable<ITermTarget> targets);
-        public IEnumerable<Result<ITermResult, ITermResultError>> GetResults(IPeriod period, IBundleProps ruleset, IEnumerable<ITermTarget> targets)
+        public IEnumerable<Either<ITermResultError, ITermResult>> GetResults(IPeriod period, IBundleProps ruleset, IEnumerable<ITermTarget> targets)
         {
-            IEnumerable<Result<ITermResult, ITermResultError>> results = new List<Result<ITermResult, ITermResultError>>();
+            IEnumerable<Either<ITermResultError, ITermResult>> results = new List<Either<ITermResultError, ITermResult>>();
 
             bool success = InitWithPeriod(period);
 

@@ -1,7 +1,8 @@
 ﻿using System;
 using HraveMzdy.Legalios.Service.Interfaces;
 using HraveMzdy.Procezor.Service.Interfaces;
-using ResultMonad;
+using LanguageExt;
+using static LanguageExt.Prelude;
 
 namespace HraveMzdy.Procezor.Service.Errors
 {
@@ -11,9 +12,9 @@ namespace HraveMzdy.Procezor.Service.Errors
         {
             return new ExtractResultError(period, result, target, inner, errorText);
         }
-        public static Result<ITermResult, ITermResultError> CreateResultError(IPeriod period, ITermTarget result, ITermSymbol target, ITermResultError inner, string errorText)
+        public static Either<ITermResultError, ITermResult> CreateResultError(IPeriod period, ITermTarget result, ITermSymbol target, ITermResultError inner, string errorText)
         {
-            return Result.Fail<ITermResult, ITermResultError>(ExtractResultError.CreateError(period, result, target, inner, errorText));
+            return Left(ExtractResultError.CreateError(period, result, target, inner, errorText));
         }
         protected ExtractResultError(IPeriod period, ITermTarget result, ITermSymbol target, ITermResultError inner, string errorText) : base(period, result, inner, errorText)
         {

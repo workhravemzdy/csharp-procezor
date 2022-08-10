@@ -7,11 +7,11 @@ using HraveMzdy.Procezor.Service.Interfaces;
 using HraveMzdy.Procezor.Service.Types;
 using HraveMzdy.Procezor.Service.Errors;
 using HraveMzdy.Procezor.Registry.Factories;
-using ResultMonad;
+using LanguageExt;
 
 namespace HraveMzdy.Procezor.Registry
 {
-    using ResultFunc = Func<ITermTarget, IArticleSpec, IPeriod, IBundleProps, IList<Result<ITermResult, ITermResultError>>, IEnumerable<Result<ITermResult, ITermResultError>>>;
+    using ResultFunc = Func<ITermTarget, IArticleSpec, IPeriod, IBundleProps, IList<Either<ITermResultError, ITermResult>>, IEnumerable<Either<ITermResultError, ITermResult>>>;
     class ResultBuilder : IResultBuilder
     {
         public VersionCode Version { get; private set; }
@@ -47,13 +47,13 @@ namespace HraveMzdy.Procezor.Registry
 
             return true;
         }
-        public IEnumerable<Result<ITermResult, ITermResultError>> GetResults(IBundleProps ruleset, 
+        public IEnumerable<Either<ITermResultError, ITermResult>> GetResults(IBundleProps ruleset, 
             IEnumerable<IContractTerm> contractTerms, IEnumerable<IPositionTerm> positionTerms, 
             IEnumerable<ITermTarget> targets, IEnumerable<ArticleCode> calcArticles)
         {
             IEnumerable<ITermCalcul> calculTargets = BuildCalculsList(PeriodInit, ruleset, contractTerms, positionTerms, targets, calcArticles);
 
-            IEnumerable<Result<ITermResult, ITermResultError>> calculResults = BuildResultsList(PeriodInit, ruleset, calculTargets);
+            IEnumerable<Either<ITermResultError, ITermResult>> calculResults = BuildResultsList(PeriodInit, ruleset, calculTargets);
 
             return calculResults;
         }
@@ -74,13 +74,13 @@ namespace HraveMzdy.Procezor.Registry
 
             return calculsList;
         }
-        private IEnumerable<Result<ITermResult, ITermResultError>> BuildResultsList(IPeriod period, IBundleProps ruleset, IEnumerable<ITermCalcul> calculs)
+        private IEnumerable<Either<ITermResultError, ITermResult>> BuildResultsList(IPeriod period, IBundleProps ruleset, IEnumerable<ITermCalcul> calculs)
         { 
-            IList<Result<ITermResult, ITermResultError>> resultsInit = new List<Result<ITermResult, ITermResultError>>();
+            IList<Either<ITermResultError, ITermResult>> resultsInit = new List<Either<ITermResultError, ITermResult>>();
 
             return calculs.Aggregate(resultsInit, (agr, x) => (MergeResults(agr, x.GetResults(period, ruleset, agr).ToArray()))).ToList();
         }
-        private static IList<Result<ITermResult, ITermResultError>> MergeResults(IList<Result<ITermResult, ITermResultError>> results, params Result<ITermResult, ITermResultError>[] resultValues)
+        private static IList<Either<ITermResultError, ITermResult>> MergeResults(IList<Either<ITermResultError, ITermResult>> results, params Either<ITermResultError, ITermResult>[] resultValues)
         {
             return results.Concat(resultValues).ToList();
         }
@@ -186,9 +186,9 @@ namespace HraveMzdy.Procezor.Registry
             }
             return conceptSpec.DefaultTargetList(article, period, ruleset, monthCode, contractTerms, positionTerms, targets, variant);
         }
-        private IEnumerable<Result<ITermResult, ITermResultError>> NotFoundCalculFunc(ITermTarget target, IArticleSpec spec, IPeriod period, IBundleProps ruleset, IList<Result<ITermResult, ITermResultError>> results)
+        private IEnumerable<Either<ITermResultError, ITermResult>> NotFoundCalculFunc(ITermTarget target, IArticleSpec spec, IPeriod period, IBundleProps ruleset, IList<Either<ITermResultError, ITermResult>> results)
         {
-            return new Result<ITermResult, ITermResultError>[] { NoResultFuncError.CreateResultError(period, target) };
+            return new Either<ITermResultError, ITermResult>[] { NoResultFuncError.CreateResultError(period, target) };
         }
         private class TargetComparator : IComparer<ITermTarget>
         {

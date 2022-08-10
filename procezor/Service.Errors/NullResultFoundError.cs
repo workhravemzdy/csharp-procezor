@@ -2,7 +2,8 @@
 using HraveMzdy.Legalios.Service.Interfaces;
 using HraveMzdy.Procezor.Service.Interfaces;
 using HraveMzdy.Procezor.Service.Types;
-using ResultMonad;
+using LanguageExt;
+using static LanguageExt.Prelude;
 
 namespace HraveMzdy.Procezor.Service.Errors
 {
@@ -21,17 +22,17 @@ namespace HraveMzdy.Procezor.Service.Errors
         {
             return new NullResultFoundError<T>(period, target, $"Result found for {article}, contract={contract.Value}, position={position.Value} but Instance is Null!");
         }
-        public static Result<T, ITermResultError> CreateResultError(IPeriod period, ITermTarget target, string article)
+        public static Either<ITermResultError, T> CreateResultError(IPeriod period, ITermTarget target, string article)
         {
-            return Result.Fail<T, ITermResultError>(NullResultFoundError<T>.CreateError(period, target, article));
+            return Left(NullResultFoundError<T>.CreateError(period, target, article));
         }
-        public static Result<T, ITermResultError> CreateResultError(IPeriod period, ITermTarget target, string article, ContractCode contract)
+        public static Either<ITermResultError, T> CreateResultError(IPeriod period, ITermTarget target, string article, ContractCode contract)
         {
-            return Result.Fail<T, ITermResultError>(NullResultFoundError<T>.CreateError(period, target, article, contract));
+            return Left(NullResultFoundError<T>.CreateError(period, target, article, contract));
         }
-        public static Result<T, ITermResultError> CreateResultError(IPeriod period, ITermTarget target, string article, ContractCode contract, PositionCode position)
+        public static Either<ITermResultError, T> CreateResultError(IPeriod period, ITermTarget target, string article, ContractCode contract, PositionCode position)
         {
-            return Result.Fail<T, ITermResultError>(NullResultFoundError<T>.CreateError(period, target, article, contract, position));
+            return Left(NullResultFoundError<T>.CreateError(period, target, article, contract, position));
         }
         NullResultFoundError(IPeriod period, ITermTarget target, string errorDesr) : base(period, target, null, errorDesr)
         {

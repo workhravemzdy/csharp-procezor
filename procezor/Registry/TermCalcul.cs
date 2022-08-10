@@ -5,11 +5,11 @@ using HraveMzdy.Legalios.Service.Interfaces;
 using HraveMzdy.Procezor.Service.Interfaces;
 using HraveMzdy.Procezor.Service.Errors;
 using HraveMzdy.Procezor.Service.Types;
-using ResultMonad;
+using LanguageExt;
 
 namespace HraveMzdy.Procezor.Registry
 {
-    using ResultFunc = Func<ITermTarget, IArticleSpec, IPeriod, IBundleProps, IList<Result<ITermResult, ITermResultError>>, IEnumerable<Result<ITermResult, ITermResultError>>>;
+    using ResultFunc = Func<ITermTarget, IArticleSpec, IPeriod, IBundleProps, IList<Either<ITermResultError, ITermResult>>, IEnumerable<Either<ITermResultError, ITermResult>>>;
     class TermCalcul : TermSymbol, ITermCalcul
     {
         public TermCalcul(ITermTarget target, IArticleSpec spec, ResultFunc resultDelegate)
@@ -24,12 +24,12 @@ namespace HraveMzdy.Procezor.Registry
         public IArticleSpec Spec { get; }
         public ResultFunc ResultDelegate { get; }
 
-        public IEnumerable<Result<ITermResult, ITermResultError>> GetResults(IPeriod period, IBundleProps ruleset, IList<Result<ITermResult, ITermResultError>> results)
+        public IEnumerable<Either<ITermResultError, ITermResult>> GetResults(IPeriod period, IBundleProps ruleset, IList<Either<ITermResultError, ITermResult>> results)
         {
             if (ResultDelegate == null)
             {
                 var resultError = NoResultFuncError.CreateResultError(period, Target);
-                return new Result<ITermResult, ITermResultError>[] { resultError };
+                return new Either<ITermResultError, ITermResult>[] { resultError };
             }
             var resultTarget = ResultDelegate(Target, Spec, period, ruleset, results);
             return resultTarget.ToArray();

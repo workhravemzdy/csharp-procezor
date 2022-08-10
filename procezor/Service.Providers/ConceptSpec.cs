@@ -5,12 +5,11 @@ using HraveMzdy.Legalios.Service.Interfaces;
 using HraveMzdy.Procezor.Service.Interfaces;
 using HraveMzdy.Procezor.Service.Errors;
 using HraveMzdy.Procezor.Service.Types;
-using ResultMonad;
-using MaybeMonad;
+using LanguageExt;
 
 namespace HraveMzdy.Procezor.Service.Providers
 {
-    using ResultFunc = Func<ITermTarget, IArticleSpec, IPeriod, IBundleProps, IList<Result<ITermResult, ITermResultError>>, IList<Result<ITermResult, ITermResultError>>>;
+    using ResultFunc = Func<ITermTarget, IArticleSpec, IPeriod, IBundleProps, IList<Either<ITermResultError, ITermResult>>, IList<Either<ITermResultError, ITermResult>>>;
     public abstract class ConceptSpec : IConceptSpec
     {
         public IEnumerable<ArticleCode> Path { get; protected set; }
@@ -63,146 +62,86 @@ namespace HraveMzdy.Procezor.Service.Providers
         {
             return MonthCode.Get(period.Code);
         }
-        protected static IList<Result<ITermResult, ITermResultError>> BuildResultList(params Result<ITermResult, ITermResultError>[] results)
+        protected static IList<ITermResult> EmptyResults()
+        {
+            return new List<ITermResult>();
+        }
+        protected static Either<ITermResultError, IEnumerable<ITermResult>> OkResultList(params ITermResult[] resultValues)
+        {
+            return Either<ITermResultError, IEnumerable<ITermResult>>.Right(resultValues.ToList());
+        }
+        protected static IList<Either<ITermResultError, ITermResult>> BuildEmptyResults()
+        {
+            return new List<Either<ITermResultError, ITermResult>>();
+        }
+        protected static IList<Either<ITermResultError, ITermResult>> BuildOkResults(params ITermResult[] resultValues)
+        {
+            return resultValues.Select((x) => Either<ITermResultError, ITermResult>.Right(x)).ToList();
+        }
+        protected static IList<Either<ITermResultError, ITermResult>> BuildFailResultList(params ITermResultError[] errorsValues)
+        {
+            return errorsValues.Select((x) => Either<ITermResultError, ITermResult>.Left(x)).ToList();
+        }
+       protected static IList<Either<ITermResultError, ITermResult>> BuildResultList(params Either<ITermResultError, ITermResult>[] results)
         {
             return results.ToList();
         }
-        protected static IList<Result<ITermResult, ITermResultError>> BuildEmptyResults()
+        protected static IList<Either<ITermResultError, ITermResult>> BuildResultList(Either<ITermResultError, IEnumerable<ITermResult>> result)
         {
-            return new List<Result<ITermResult, ITermResultError>>();
+            return result.Match(Left: err => BuildFailResultList(err), Right: res => BuildOkResults(res.ToArray()));
         }
-        protected static IList<Result<ITermResult, ITermResultError>> BuildOkResults(params ITermResult[] resultValues)
+        protected static IList<Either<ITermResultError, ITermResult>> BuildResultList(Either<ITermResultError, Either<ITermResultError, IEnumerable<ITermResult>>> result)
         {
-            return resultValues.Select((x) => Result.Ok<ITermResult, ITermResultError>(x)).ToList();
+            return result.Match(Left: err => BuildFailResultList(err), Right: res => BuildResultList(res));
         }
-        protected static IList<Result<ITermResult, ITermResultError>> BuildFailResults(params ITermResultError[] errorsValues)
+        protected static IList<Either<ITermResultError, ITermResult>> BuildResultList(Either<ITermResultError, Either<ITermResultError, ITermResult>> result)
         {
-            return errorsValues.Select((x) => Result.Fail<ITermResult, ITermResultError>(x)).ToList();
+            return result.Match(Left: err => BuildFailResultList(err), Right: res => BuildResultList(res)
+            );
         }
-        protected static IList<Result<ITermResult, ITermResultError>> GetResults(IList<Result<ITermResult, ITermResultError>> results, ITermSymbol symbol)
-        {
-            return results.Where((x) => (x.IsSuccess && x.Value.IsPositionArticleEqual(symbol))).ToList();
-        }
-        protected static IList<ITermResult> GetOkPositionArticleResults(IList<Result<ITermResult, ITermResultError>> results, ITermSymbol symbol)
-        {
-            return results.Where((x) => (x.IsSuccess && x.Value.IsPositionArticleEqual(symbol)))
-                .Select(x => x.Value).ToList();
-        }
-        protected static Result<IList<ITermResult>, ITermResultError> GetPositionArticleList(IList<Result<ITermResult, ITermResultError>> results, ITermSymbol symbol)
-        {
-            var reduceInit = Result.Ok<IList<ITermResult>, ITermResultError>(new List<ITermResult>());
-
-            return results.Where((x) => (x.IsSuccess && x.Value.IsPositionArticleEqual(symbol)))
-                .Aggregate(reduceInit, (agr, x) => ReduceResultList(agr, x));
-        }
-        protected static IList<ITermResultError> GetFailPositionArticleResults(IList<Result<ITermResult, ITermResultError>> results, MonthCode monthCode, ArticleCode article, ContractCode contract, PositionCode position)
-        {
-            return results.Where((x) => (x.IsFailure)).Select(x => x.Error).ToList();
-        }
-        protected static Result<Maybe<V>, ITermResultError> ReducePositionArticleList<V>(IList<Result<ITermResult, ITermResultError>> results, ITermSymbol symbol, 
-            Func<Result<Maybe<V>, ITermResultError>, Result<ITermResult, ITermResultError>, Result<Maybe<V>, ITermResultError>> selector)
-        {
-            var reduceInit = Result.Ok<Maybe<V>, ITermResultError>(Maybe<V>.Nothing);
-
-            return results.Where((x) => (x.IsSuccess && x.Value.IsPositionArticleEqual(symbol)))
-                .Aggregate(reduceInit, (agr, t) => selector(agr, t));
-        }
-        protected static Result<Maybe<V>, ITermResultError> SelectPositionArticle<V>(IList<Result<ITermResult, ITermResultError>> results, ITermSymbol symbol, 
-            Func<Result<ITermResult, ITermResultError>, Result<Maybe<V>, ITermResultError>> selector)
-        {
-            Result<ITermResult, ITermResultError> resultItem = results.FirstOrDefault((x) => (x.IsSuccess && x.Value.IsPositionArticleEqual(symbol)));
-            
-            return selector(resultItem);
-        }
-        protected static Result<Maybe<R>, ITermResultError> ResultSums<R>(Result<Maybe<R>, ITermResultError> agr, Result<ITermResult, ITermResultError> x, Func<ITermResult, R> valSelector, Func<R, R, R> sumFunc)
-        {
-            if (x.IsFailure)
-            {
-                return Result.Fail<Maybe<R>, ITermResultError>(x.Error);
-            }
-            if (agr.IsFailure)
-            {
-                return agr;
-            }
-            R resultValue = default;
-            if (agr.Value.HasValue)
-            {
-                resultValue = agr.Value.Value;
-            }
-            return Result.Ok<Maybe<R>, ITermResultError>(Maybe.From<R>(sumFunc(resultValue, valSelector(x.Value))));
-        }
-        protected static Result<Maybe<R>, ITermResultError> ResultVals<R>(Result<ITermResult, ITermResultError> x, Func<ITermResult, R> valSelector)
-        {
-            if (x.IsFailure)
-            {
-                return Result.Fail<Maybe<R>, ITermResultError>(x.Error);
-            }
-            if (x.Value == null)
-            {
-                return Result.Ok<Maybe<R>, ITermResultError>(Maybe<R>.Nothing);
-            }
-            return Result.Ok<Maybe<R>, ITermResultError>(Maybe.From<R>(valSelector(x.Value)));
-        }
-        private static Result<IList<ITermResult>, ITermResultError> ReduceResultList(Result<IList<ITermResult>, ITermResultError> agr, Result<ITermResult, ITermResultError> x)
-        {
-            if (agr.IsFailure)
-            {
-                return agr;
-            }
-            if (x.IsFailure)
-            {
-                return Result.Fail<IList<ITermResult>, ITermResultError>(x.Error);
-            }     
-            return Result.Ok<IList<ITermResult>, ITermResultError>(MergeResults(agr.Value, x.Value));
-        }
-        private static IList<ITermResult> MergeResults(IList<ITermResult> results, params ITermResult[] resultValues)
-        {
-            return results.Concat(resultValues).ToList();
-        }
-        public static IEnumerable<ArticleCode> ConstToPathArray(IEnumerable<Int32> _path)
-        {
-            return _path.Select((x) => ArticleCode.Get(x));
-        }
-
-        public static Result<IPropsSalary, ITermResultError> GetSalaryPropsResult(IBundleProps ruleset, ITermTarget target, IPeriod period)
+        public static Either<ITermResultError, IPropsSalary> GetSalaryPropsResult(IBundleProps ruleset, ITermTarget target, IPeriod period)
         {
             IPropsSalary propsType = GetSalaryProps(ruleset, period);
             if (propsType == null)
             {
                 var error = InvalidRulesetError<IPropsSalary>.CreateError(period, target);
-                return Result.Fail<IPropsSalary, ITermResultError>(error);
+                return Either<ITermResultError, IPropsSalary>.Left(error);
             }
-            return Result.Ok<IPropsSalary, ITermResultError>(propsType);
+            return Either<ITermResultError, IPropsSalary>.Right(propsType);
         }
-        public static Result<IPropsHealth, ITermResultError> GetHealthPropsResult(IBundleProps ruleset, ITermTarget target, IPeriod period)
+        public static Either<ITermResultError, IPropsHealth> GetHealthPropsResult(IBundleProps ruleset, ITermTarget target, IPeriod period)
         {
             IPropsHealth propsType = GetHealthProps(ruleset, period);
             if (propsType == null)
             {
                 var error = InvalidRulesetError<IPropsHealth>.CreateError(period, target);
-                return Result.Fail<IPropsHealth, ITermResultError>(error);
+                return Either<ITermResultError, IPropsHealth>.Left(error);
             }
-            return Result.Ok<IPropsHealth, ITermResultError>(propsType);
+            return Either<ITermResultError, IPropsHealth>.Right(propsType);
         }
-        public static Result<IPropsSocial, ITermResultError> GetSocialPropsResult(IBundleProps ruleset, ITermTarget target, IPeriod period)
+        public static Either<ITermResultError, IPropsSocial> GetSocialPropsResult(IBundleProps ruleset, ITermTarget target, IPeriod period)
         {
             IPropsSocial propsType = GetSocialProps(ruleset, period);
             if (propsType == null)
             {
                 var error = InvalidRulesetError<IPropsSocial>.CreateError(period, target);
-                return Result.Fail<IPropsSocial, ITermResultError>(error);
+                return Either<ITermResultError, IPropsSocial>.Left(error);
             }
-            return Result.Ok<IPropsSocial, ITermResultError>(propsType);
+            return Either<ITermResultError, IPropsSocial>.Right(propsType);
         }
-        public static Result<IPropsTaxing, ITermResultError> GetTaxingPropsResult(IBundleProps ruleset, ITermTarget target, IPeriod period)
+        public static Either<ITermResultError, IPropsTaxing> GetTaxingPropsResult(IBundleProps ruleset, ITermTarget target, IPeriod period)
         {
             IPropsTaxing propsType = GetTaxingProps(ruleset, period);
             if (propsType == null)
             {
                 var error = InvalidRulesetError<IPropsTaxing>.CreateError(period, target);
-                return Result.Fail<IPropsTaxing, ITermResultError>(error);
+                return Either<ITermResultError, IPropsTaxing>.Left(error);
             }
-            return Result.Ok<IPropsTaxing, ITermResultError>(propsType);
+            return Either<ITermResultError, IPropsTaxing>.Right(propsType);
+        }
+        public static IEnumerable<ArticleCode> ConstToPathArray(IEnumerable<Int32> _path)
+        {
+            return _path.Select((x) => ArticleCode.Get(x));
         }
         public static IPropsSalary GetSalaryProps(IBundleProps ruleset, IPeriod period)
         {

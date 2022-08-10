@@ -6,11 +6,11 @@ using HraveMzdy.Procezor.Service.Errors;
 using HraveMzdy.Procezor.Service.Interfaces;
 using HraveMzdy.Procezor.Service.Providers;
 using HraveMzdy.Procezor.Service.Types;
-using ResultMonad;
+using LanguageExt;
 
 namespace HraveMzdy.Procezor.Registry.Factories
 {
-    using ResultFunc = Func<ITermTarget, IArticleSpec, IPeriod, IBundleProps, IList<Result<ITermResult, ITermResultError>>, IList<Result<ITermResult, ITermResultError>>>;
+    using ResultFunc = Func<ITermTarget, IArticleSpec, IPeriod, IBundleProps, IList<Either<ITermResultError, ITermResult>>, IList<Either<ITermResultError, ITermResult>>>;
     class NotFoundConceptProvider : ConceptSpecProvider
     {
         const Int32 CONCEPT_CODE = (Int32)ConceptConst.CONCEPT_NOTFOUND;

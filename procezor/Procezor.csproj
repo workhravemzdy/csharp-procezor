@@ -1,37 +1,41 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFramework>net5.0</TargetFramework>
+    <TargetFramework>net6.0</TargetFramework>
     <AssemblyName>HraveMzdy.Procezor</AssemblyName>
     <RootNamespace>HraveMzdy.Procezor</RootNamespace>
-    <Version>0.22.17</Version>
+    <PackageId>HraveMzdy.Procezor</PackageId>
     <Authors>Ladislav Lisy</Authors>
-    <Description>General payroll procesor</Description>
     <Copyright>Copyright 2022</Copyright>
-    <PackageLicenseFile>LICENSE</PackageLicenseFile>
-    <PackageProjectUrl>http://hravemzdy.org/procezor</PackageProjectUrl>
-    <RepositoryUrl>https://github.com/mzdyhrave/payrolcs.git</RepositoryUrl>
-    <RepositoryType>github</RepositoryType>
+    <Owners>hravemzdy.org</Owners>
+    <Title>Legal Monthly Attributes 2011-2022</Title>
+    <Description>General payroll procesor</Description>
+    <Version>0.22.21</Version>
     <PackageTags>payroll, legal, wages, social, health, tax, income, insurance</PackageTags>
+    <RepositoryUrl>https://github.com/mzdyhrave/payrolcs.git</RepositoryUrl>
+    <PackageProjectUrl>http://hravemzdy.org/procezor</PackageProjectUrl>
+    <RepositoryType>github</RepositoryType>
+    <GeneratePackageOnBuild>True</GeneratePackageOnBuild>
+    <PackageLicenseFile>LICENSE</PackageLicenseFile>
     <SignAssembly>true</SignAssembly>
     <AssemblyOriginatorKeyFile>hravemzdy__org_publish_key.snk</AssemblyOriginatorKeyFile>
-    <ReleaseVersion>0.22.17</ReleaseVersion>
-    <SynchReleaseVersion>false</SynchReleaseVersion>
+    <ReleaseVersion>0.22.21</ReleaseVersion>
+    <SynchReleaseVersion>true</SynchReleaseVersion>
   </PropertyGroup>
 
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
-  <ItemGroup>
-    <PackageReference Include="HraveMzdy.Legalios" Version="0.22.13" />
-    <PackageReference Include="ResultMonad" Version="1.0.1" />
-  </ItemGroup>
 
   <ItemGroup>
     <None Include="LICENSE">
       <Pack>True</Pack>
       <PackagePath></PackagePath>
     </None>
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="HraveMzdy.Legalios" Version="0.22.20" />
   </ItemGroup>
 
 </Project>

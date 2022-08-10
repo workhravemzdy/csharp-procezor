@@ -14,6 +14,7 @@ using HraveMzdy.Procezor.Service.Types;
 using ProcezorTests.Registry.Constants;
 using ProcezorTests.Registry.Providers;
 using ProcezorTests.Registry.Factories;
+using LanguageExt;
 
 namespace ProcezorTests.Service.Examples
 {
@@ -108,23 +109,21 @@ namespace ProcezorTests.Service.Examples
             restService.Count().Should().NotBe(0);
 
             foreach (var (result, index) in restService.Select((item, index) => (item, index))) {
-                if (result.IsSuccess) 
-                {
-                    var resultValue = result.Value;
-                    var articleSymbol = resultValue.ArticleDescr();
-                    var conceptSymbol = resultValue.ConceptDescr();
-                    output.WriteLine("Index: {0}; CODE: {1}; ART: {2}; CON: {3}", index, resultValue.Article.Value, articleSymbol, conceptSymbol);
-                }
-                else if (result.IsFailure) 
-                {
-                    var errorValue = result.Error;
-                    var articleSymbol = errorValue.ArticleDescr();
-                    var conceptSymbol = errorValue.ConceptDescr();
-                    output.WriteLine("Index: {0}; CODE: {1}; ART: {1}; CON: {2}; Error: {3}", index, errorValue.Article.Value, articleSymbol, conceptSymbol, errorValue);
-                }
+                result.Match(
+                    Right: resultValue =>
+                    {
+                        var articleSymbol = resultValue.ArticleDescr();
+                        var conceptSymbol = resultValue.ConceptDescr();
+                        output.WriteLine("Index: {0}; CODE: {1}; ART: {2}; CON: {3}", index, resultValue.Article.Value, articleSymbol, conceptSymbol);
+                    },
+                    Left: errorValue =>
+                    {
+                        var articleSymbol = errorValue.ArticleDescr();
+                        var conceptSymbol = errorValue.ConceptDescr();
+                        output.WriteLine("Index: {0}; CODE: {1}; ART: {2}; CON: {3}; Error: {4}", index, errorValue.Article.Value, articleSymbol, conceptSymbol, errorValue);
+                    });
             }
-
-            var restArticles = restService.Where((r) => (r.IsSuccess)).Select((x) => (x.Value.Article.Value)).ToArray();
+            var restArticles = restService.Rights().Select((x) => (x.Article.Value)).ToArray();
             restArticles.Should().NotBeEmpty()
                 .And.HaveCount(11)
                 .And.ContainInOrder(new[] { 80001, 80005, 80002, 80006, 80007, 80010, 80012, 80008, 80009, 80011, 80013 })
@@ -162,23 +161,22 @@ namespace ProcezorTests.Service.Examples
             restService.Count().Should().NotBe(0);
 
             foreach (var (result, index) in restService.Select((item, index) => (item, index))) {
-                if (result.IsSuccess)
-                {
-                    var resultValue = result.Value;
-                    var articleSymbol = resultValue.ArticleDescr();
-                    var conceptSymbol = resultValue.ConceptDescr();
-                    output.WriteLine("Index: {0}; CODE: {1}; ART: {2}; CON: {3}", index, resultValue.Article.Value, articleSymbol, conceptSymbol);
-                }
-                else if (result.IsFailure)
-                {
-                    var errorValue = result.Error;
-                    var articleSymbol = errorValue.ArticleDescr();
-                    var conceptSymbol = errorValue.ConceptDescr();
-                    output.WriteLine("Index: {0}; CODE: {1}; ART: {1}; CON: {2}; Error: {3}", index, errorValue.Article.Value, articleSymbol, conceptSymbol, errorValue);
-                }
+                result.Match(
+                    Right: resultValue =>
+                    {
+                        var articleSymbol = resultValue.ArticleDescr();
+                        var conceptSymbol = resultValue.ConceptDescr();
+                        output.WriteLine("Index: {0}; CODE: {1}; ART: {2}; CON: {3}", index, resultValue.Article.Value, articleSymbol, conceptSymbol);
+                    },
+                    Left: errorValue =>
+                    {
+                        var articleSymbol = errorValue.ArticleDescr();
+                        var conceptSymbol = errorValue.ConceptDescr();
+                        output.WriteLine("Index: {0}; CODE: {1}; ART: {2}; CON: {3}; Error: {4}", index, errorValue.Article.Value, articleSymbol, conceptSymbol, errorValue);
+                    });
             }
 
-            var restArticles = restService.Where((r) => (r.IsSuccess)).Select((x) => (x.Value.Article.Value)).ToArray();
+            var restArticles = restService.Rights().Select((x) => (x.Article.Value)).ToArray();
             restArticles.Should().NotBeEmpty()
                 .And.HaveCount(12)
                 .And.ContainInOrder(new[] { 80001, 80003, 80004, 80002, 80006, 80007, 80010, 80012, 80008, 80009, 80011, 80013 })

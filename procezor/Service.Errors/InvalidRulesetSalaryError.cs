@@ -1,7 +1,8 @@
 ﻿using System;
 using HraveMzdy.Legalios.Service.Interfaces;
 using HraveMzdy.Procezor.Service.Interfaces;
-using ResultMonad;
+using LanguageExt;
+using static LanguageExt.Prelude;
 
 namespace HraveMzdy.Procezor.Service.Errors
 {
@@ -11,9 +12,9 @@ namespace HraveMzdy.Procezor.Service.Errors
         {
             return new InvalidRulesetError<T>(period, target);
         }
-        public static Result<ITermResult, ITermResultError> CreateResultError(IPeriod period, ITermTarget target)
+        public static Either<ITermResultError, ITermResult> CreateResultError(IPeriod period, ITermTarget target)
         {
-            return Result.Fail<ITermResult, ITermResultError>(InvalidRulesetError<T>.CreateError(period, target));
+            return Left(InvalidRulesetError<T>.CreateError(period, target));
         }
         InvalidRulesetError(IPeriod period, ITermTarget target) : base(period, target, null, $"Invalid {typeof(T).Name} Ruleset error!")
         {
